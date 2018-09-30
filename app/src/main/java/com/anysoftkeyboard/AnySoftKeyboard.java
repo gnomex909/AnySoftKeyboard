@@ -95,6 +95,19 @@ import io.reactivex.Observable;
  */
 public abstract class AnySoftKeyboard extends AnySoftKeyboardWithGestureTyping {
 
+    public static final String FOCUS_MODEL="FocusModel";
+    public static final String RESISTANCE_DRIVER = "RESISTANCE_DRIVER";
+    public static final String KEYBOARD_USAGE_TIME = "Keyboard_usage_time";
+    public static final String FIRST_TIME_USED = "databaseBootingUp";
+    public static final String AUTH_EMAIL="authenticationEmail";
+    public static final String AUTH_PASSWORD="authenticationPassword";
+    public static final String LOG_LEVEL = "loggingPrivacyLevel";
+    public static final String LEVEL_CHANGED = "resistanceLevelhasChanged";
+    public static final String CHANGED_REACT = "needToChangeReaction";
+    public static final String THEME_SELECTED = "isLightThemeSelected";
+    public static final String DEBUG_MODE = "debugModeOnline";
+    public static final String KEY_LIMIT = "keyLimitForChange";
+
     private static final long ONE_FRAME_DELAY = 1000L / 60L;
     private static final long CLOSE_DICTIONARIES_DELAY = 10 * ONE_FRAME_DELAY;
     private static final ExtractedTextRequest EXTRACTED_TEXT_REQUEST = new ExtractedTextRequest();
