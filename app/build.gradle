@@ -9,6 +9,7 @@ buildscript {
     }
 
     dependencies {
+
         classpath 'com.github.menny:GradleVersion:0.0.3'
     }
 }
@@ -16,6 +17,7 @@ buildscript {
 apply plugin: 'com.android.application'
 apply plugin: 'com.github.triplet.play'
 apply plugin: 'net.evendanan.versiongenerator'
+
 
 def generators = [
         new net.evendanan.versiongenerator.generators.EnvBuildVersionGenerator.CircleCi(1650/*adding to version*/, /*decrementing due to minor*/ -2575),
@@ -159,6 +161,9 @@ dependencies {
     implementation "com.android.support:design:$supportLibVersion"
     implementation 'com.jpardogo.materialtabstrip:library:1.1.0'
     implementation 'com.github.karczews:rx2-broadcast-receiver:1.0.5'
+    implementation 'com.google.firebase:firebase-core:12.0.1'
+    implementation 'com.google.firebase:firebase-auth:12.0.1'
+    implementation 'com.google.firebase:firebase-firestore:12.0.1'
     implementation('com.github.menny.Chauffeur:permissions:0.1.1') {
         exclude group: 'com.android.support'
     }
@@ -167,3 +172,4 @@ dependencies {
 
     testImplementation 'com.github.triplet.simpleprovider:simpleprovider:1.1.0'
 }
+apply plugin: 'com.google.gms.google-services'

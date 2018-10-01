@@ -19,6 +19,9 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <!-- REQUIRED BACKUP TO/RESTORE FROM SDCARD -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
+                     tools:ignore="ProtectedPermissions"/>
 
     <!-- currently, only support touch and fake-touch devices -->
     <uses-feature android:name="android.hardware.faketouch" />
@@ -131,6 +134,11 @@
             android:label="@string/ime_name"
             android:roundIcon="@mipmap/ic_launcher_round"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <receiver android:name="com.anysoftkeyboard.resistance.ResistanceAlarm">
+            <intent-filter>
+                <action android:name="com.anysoftkeyboard.alarms.RESISTANCE_ALARM"></action>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

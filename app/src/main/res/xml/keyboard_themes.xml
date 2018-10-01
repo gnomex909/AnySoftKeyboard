@@ -9,6 +9,46 @@
         description="@string/yochees_dark_keyboard_theme_description"
         index="1"/>
     <KeyboardTheme
+        id="8774f99e-fb4a-49fa-b8d0-4083f762250a0"
+        nameResId="@string/yochees_dark_keyboard_theme_name"
+        themeRes="@style/YocheesDarkTheme0"
+        popupThemeRes="@style/YocheesDarkPopup0"
+        iconsThemeRes="@style/YocheesDarkKeyIconTheme"
+        description="@string/yochees_dark_keyboard_theme_description"
+        index="100"/>
+    <KeyboardTheme
+        id="8774f99e-fb4a-49fa-b8d0-4083f762250a1"
+        nameResId="@string/yochees_dark_keyboard_theme_name"
+        themeRes="@style/YocheesDarkTheme1"
+        popupThemeRes="@style/YocheesDarkPopup1"
+        iconsThemeRes="@style/YocheesDarkKeyIconTheme"
+        description="@string/yochees_dark_keyboard_theme_description"
+        index="101"/>
+    <KeyboardTheme
+        id="8774f99e-fb4a-49fa-b8d0-4083f762250a2"
+        nameResId="@string/yochees_dark_keyboard_theme_name"
+        themeRes="@style/YocheesDarkTheme2"
+        popupThemeRes="@style/YocheesDarkPopup2"
+        iconsThemeRes="@style/YocheesDarkKeyIconTheme"
+        description="@string/yochees_dark_keyboard_theme_description"
+        index="102"/>
+    <KeyboardTheme
+        id="8774f99e-fb4a-49fa-b8d0-4083f762250a3"
+        nameResId="@string/yochees_dark_keyboard_theme_name"
+        themeRes="@style/YocheesDarkTheme3"
+        popupThemeRes="@style/YocheesDarkPopup3"
+        iconsThemeRes="@style/YocheesDarkKeyIconTheme"
+        description="@string/yochees_dark_keyboard_theme_description"
+        index="103"/>
+    <KeyboardTheme
+        id="8774f99e-fb4a-49fa-b8d0-4083f762250a4"
+        nameResId="@string/yochees_dark_keyboard_theme_name"
+        themeRes="@style/YocheesDarkTheme4"
+        popupThemeRes="@style/YocheesDarkPopup4"
+        iconsThemeRes="@style/YocheesDarkKeyIconTheme"
+        description="@string/yochees_dark_keyboard_theme_description"
+        index="104"/>
+    <KeyboardTheme
         id="18c558ef-bc8c-433a-a36e-92c3ca3be4dd"
         nameResId="@string/yochees_light_keyboard_theme_name"
         themeRes="@style/PlainLightAnySoftKeyboard"
@@ -140,4 +180,44 @@
         description="@string/power_saving_keyboard_theme_description"
         hidden="true"
         index="22"/>
+    <KeyboardTheme
+        id="1f593f8f-0457-4ba1-9d26-11cc69ac24f40"
+        nameResId="@string/lean_light_big_keyboard_theme_name"
+        themeRes="@style/LeanLightBig0"
+        popupThemeRes="@style/LeanLightPopupRes0"
+        iconsThemeRes="@style/LeanLightKeyIconTheme"
+        description="@string/lean_light_big_keyboard_theme_description"
+        index="110"/>
+    <KeyboardTheme
+        id="1f593f8f-0457-4ba1-9d26-11cc69ac24f41"
+        nameResId="@string/lean_light_big_keyboard_theme_name"
+        themeRes="@style/LeanLightBig1"
+        popupThemeRes="@style/LeanLightPopupRes1"
+        iconsThemeRes="@style/LeanLightKeyIconTheme"
+        description="@string/lean_light_big_keyboard_theme_description"
+        index="111"/>
+    <KeyboardTheme
+        id="1f593f8f-0457-4ba1-9d26-11cc69ac24f42"
+        nameResId="@string/lean_light_big_keyboard_theme_name"
+        themeRes="@style/LeanLightBig2"
+        popupThemeRes="@style/LeanLightPopupRes2"
+        iconsThemeRes="@style/LeanLightKeyIconTheme"
+        description="@string/lean_light_big_keyboard_theme_description"
+        index="112"/>
+    <KeyboardTheme
+        id="1f593f8f-0457-4ba1-9d26-11cc69ac24f43"
+        nameResId="@string/lean_light_big_keyboard_theme_name"
+        themeRes="@style/LeanLightBig3"
+        popupThemeRes="@style/LeanLightPopupRes3"
+        iconsThemeRes="@style/LeanLightKeyIconTheme"
+        description="@string/lean_light_big_keyboard_theme_description"
+        index="113"/>
+    <KeyboardTheme
+        id="1f593f8f-0457-4ba1-9d26-11cc69ac24f44"
+        nameResId="@string/lean_light_big_keyboard_theme_name"
+        themeRes="@style/LeanLightBig4"
+        popupThemeRes="@style/LeanLightPopupRes4"
+        iconsThemeRes="@style/LeanLightKeyIconTheme"
+        description="@string/lean_light_big_keyboard_theme_description"
+        index="114"/>
 </KeyboardThemes>

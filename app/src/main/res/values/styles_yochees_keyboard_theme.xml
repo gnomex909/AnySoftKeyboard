@@ -126,7 +126,31 @@
         <item name="suggestionBackgroundImage">@drawable/yochees_dark_main_background</item>
         <item name="suggestionCloseImage">@drawable/yochees_dark_close_suggetions</item>
     </style>
-
+    <style name="YocheesDarkTheme0" parent="@style/YocheesDarkTheme">
+        <item name="keyBackground">@drawable/yochees_dark_key0</item>
+        <!-- key preview (feedback) -->
+        <item name="keyPreviewBackground">@drawable/dark_btn_key_preview_background0</item>
+    </style>
+    <style name="YocheesDarkTheme1" parent="@style/YocheesDarkTheme">
+        <item name="keyBackground">@drawable/yochees_dark_key1</item>
+        <!-- key preview (feedback) -->
+        <item name="keyPreviewBackground">@drawable/dark_btn_key_preview_background1</item>
+    </style>
+    <style name="YocheesDarkTheme2" parent="@style/YocheesDarkTheme">
+        <item name="keyBackground">@drawable/yochees_dark_key2</item>
+        <!-- key preview (feedback) -->
+        <item name="keyPreviewBackground">@drawable/dark_btn_key_preview_background2</item>
+    </style>
+    <style name="YocheesDarkTheme3" parent="@style/YocheesDarkTheme">
+        <item name="keyBackground">@drawable/yochees_dark_key3</item>
+        <!-- key preview (feedback) -->
+        <item name="keyPreviewBackground">@drawable/dark_btn_key_preview_background3</item>
+    </style>
+    <style name="YocheesDarkTheme4" parent="@style/YocheesDarkTheme">
+        <item name="keyBackground">@drawable/yochees_dark_key4</item>
+        <!-- key preview (feedback) -->
+        <item name="keyPreviewBackground">@drawable/dark_btn_key_preview_background4</item>
+    </style>
     <style name="YocheesDarkPopup" parent="@style/YocheesBaseTheme">
         <item name="android:background">@drawable/yochees_dark_popup_background</item>
         <item name="android:paddingLeft">0px</item>
@@ -143,6 +167,21 @@
         <item name="keyTextColor">#FFFFFF</item>
     </style>
 
+    <style name="YocheesDarkPopup0" parent="@style/YocheesDarkPopup">
+        <item name="android:background">@drawable/yochees_dark_popup_background0</item>
+    </style>
+    <style name="YocheesDarkPopup1" parent="@style/YocheesDarkPopup">
+        <item name="android:background">@drawable/yochees_dark_popup_background1</item>
+    </style>
+    <style name="YocheesDarkPopup2" parent="@style/YocheesDarkPopup">
+        <item name="android:background">@drawable/yochees_dark_popup_background2</item>
+    </style>
+    <style name="YocheesDarkPopup3" parent="@style/YocheesDarkPopup">
+        <item name="android:background">@drawable/yochees_dark_popup_background3</item>
+    </style>
+    <style name="YocheesDarkPopup4" parent="@style/YocheesDarkPopup">
+        <item name="android:background">@drawable/yochees_dark_popup_background4</item>
+    </style>
     <style name="YocheesDark2Theme" parent="@style/YocheesDarkTheme">
         <item name="keyTextSize">@dimen/lean_key_text_size</item>
         <item name="keyTextStyle">bold</item>

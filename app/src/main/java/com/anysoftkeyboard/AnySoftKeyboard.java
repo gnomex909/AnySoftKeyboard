@@ -18,17 +18,26 @@ package com.anysoftkeyboard;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.AppOpsManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.util.Pair;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.util.TypedValue;
 import android.view.KeyEvent;
@@ -68,6 +77,7 @@ import com.anysoftkeyboard.keyboards.views.CandidateView;
 import com.anysoftkeyboard.powersave.PowerSaving;
 import com.anysoftkeyboard.prefs.AnimationsLevel;
 import com.anysoftkeyboard.receivers.PackagesChangedReceiver;
+import com.anysoftkeyboard.resistance.KeyboardModifiers;
 import com.anysoftkeyboard.rx.GenericOnError;
 import com.anysoftkeyboard.rx.RxSchedulers;
 import com.anysoftkeyboard.theme.KeyboardTheme;
@@ -170,6 +180,8 @@ public abstract class AnySoftKeyboard extends AnySoftKeyboardWithGestureTyping {
     private EditText mFullScreenExtractTextView;
     private boolean mFrenchSpacePunctuationBehavior;
     private ImageView mCandidatesCloseIcon;
+    private KeyboardModifiers mKeyboardModifiers;
+
 
     public AnySoftKeyboard() {
         super();
@@ -199,6 +211,23 @@ public abstract class AnySoftKeyboard extends AnySoftKeyboardWithGestureTyping {
     @Override
     public void onCreate() {
         super.onCreate();
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        mKeyboardModifiers = new KeyboardModifiers();
+        if(!(sharedPreferences.getString(FIRST_TIME_USED,"").length()>0)){
+            mKeyboardModifiers.init(this, sharedPreferences);
+        }
+        ConnectivityManager connec = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connec != null && (
+                (connec.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) ||
+                        (connec.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED))) {
+            mKeyboardModifiers.logInit(sharedPreferences);
+        };
+        if (!isAccessGranted()) {
+            Toast.makeText(this, "Please enable Usage Statistics acces for AnySoftKeyboard to take part in this project", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+            startActivity(intent);
+        }
+        Log.d(TAG, "onCreate: Shared check");
         mOrientation = getResources().getConfiguration().orientation;
         if ((!BuildConfig.DEBUG) && DeveloperUtils.hasTracingRequested(getApplicationContext())) {
             try {
@@ -321,7 +350,22 @@ public abstract class AnySoftKeyboard extends AnySoftKeyboardWithGestureTyping {
 
         mVoiceRecognitionTrigger = new VoiceRecognitionTrigger(this);
     }
+    private boolean isAccessGranted() {
+        try {
+            PackageManager packageManager = getPackageManager();
+            ApplicationInfo applicationInfo = packageManager.getApplicationInfo(getPackageName(), 0);
+            AppOpsManager appOpsManager = (AppOpsManager) getSystemService(Context.APP_OPS_SERVICE);
+            int mode = 0;
+            if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.KITKAT) {
+                mode = appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
+                        applicationInfo.uid, applicationInfo.packageName);
+            }
+            return (mode == AppOpsManager.MODE_ALLOWED);
 
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
+    }
     private static CondenseType parseCondenseType(String prefCondenseType) {
         switch (prefCondenseType) {
             case "split":
@@ -410,6 +454,13 @@ public abstract class AnySoftKeyboard extends AnySoftKeyboardWithGestureTyping {
 
         if (getInputView() == null) {
             return;
+        }
+        if(!restarting){
+            Log.d(TAG, "onStartInputView: Starting up keyboard");
+            mKeyboardModifiers = new KeyboardModifiers();
+            if(mKeyboardModifiers.keyboardStartup(this)){
+//                resetInputViews();
+            };
         }
 
         getInputView().resetInputView();
@@ -514,6 +565,7 @@ public abstract class AnySoftKeyboard extends AnySoftKeyboardWithGestureTyping {
     @Override
     public void onFinishInput() {
         super.onFinishInput();
+        boolean debugMode = mKeyboardModifiers.keyboardEnding(this);
         mPredictionOn = false;
 
         final IBinder imeToken = getImeToken();
@@ -947,6 +999,7 @@ public abstract class AnySoftKeyboard extends AnySoftKeyboardWithGestureTyping {
     }
 
     private void onFunctionKey(final int primaryCode, final Key key, final int multiTapIndex, final int[] nearByKeyCodes, final boolean fromUI) {
+        mKeyboardModifiers.handleKey(this, true);
         if (BuildConfig.DEBUG) Logger.d(TAG, "onFunctionKey %d", primaryCode);
 
         final InputConnection ic = getCurrentInputConnection();
@@ -1168,6 +1221,7 @@ public abstract class AnySoftKeyboard extends AnySoftKeyboardWithGestureTyping {
     }
 
     private void onNonFunctionKey(final int primaryCode, final Key key, final int multiTapIndex, final int[] nearByKeyCodes, final boolean fromUI) {
+        mKeyboardModifiers.handleKey(this, false);
         if (BuildConfig.DEBUG) Logger.d(TAG, "onFunctionKey %d", primaryCode);
 
         final InputConnection ic = getCurrentInputConnection();

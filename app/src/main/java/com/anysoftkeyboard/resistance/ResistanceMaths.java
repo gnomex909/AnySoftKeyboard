@@ -58,7 +58,7 @@ public class ResistanceMaths {
 
 
 
-//            boolean logStatus = new ResistanceLogger().regularLogger(context,startTime, currTime, resistanceDriver,activeModel, primalDecision, primalFocusTime, easyDecision, easyFocusTime, appTime);
+            boolean logStatus = new ResistanceLogger().regularLogger(context,startTime, currTime, resistanceDriver,activeModel, primalDecision, primalFocusTime, easyDecision, easyFocusTime, appTime);
             Log.d(TAG, "calculateFocusTime: ResistanceDriver: " + resistanceDriver + "| ActiveModel: " + activeModel + " | AppUsages: " + message + "<<Keyboard | " + keyboardUsageTime + " ms>>");
             Log.d(TAG, "calculateFocusTime: PrimalDecision: " + primalDecision + "| PrimalFocusTime: " + primalFocusTime + " ms");
             Log.d(TAG, "calculateFocusTime:EasyDecision: " + primalDecision + "| EasyFocusTime: " + primalFocusTime + " ms\"");
