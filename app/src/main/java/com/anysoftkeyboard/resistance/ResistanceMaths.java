@@ -24,7 +24,11 @@ public class ResistanceMaths {
     private static final String TAG = "ResistanceMaths";
     public static final long period = 1000*60*30;
     public static final String LAST_CALCULATION ="LastCalculationTime";
+    private int amountOfModels = 3;
 
+    public int getAmountOfModels() {
+        return amountOfModels;
+    }
 
     public double calculateFocusTime(Context context, ArrayList<AppUsageInfo> appUsageInfos, long startTime, long currTime){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -67,9 +71,12 @@ public class ResistanceMaths {
             double decision;
             switch (activeModel) {
                 case 0:
-                    decision = easyDecision;
+                    decision = 0.00;
                     break;
                 case 1:
+                    decision = easyDecision;
+                    break;
+                case 2:
                     decision = primalDecision;
                     break;
                 default:

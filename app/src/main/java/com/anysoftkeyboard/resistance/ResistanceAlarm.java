@@ -14,6 +14,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import static com.anysoftkeyboard.AnySoftKeyboard.DEBUG_MODE;
 import static com.anysoftkeyboard.AnySoftKeyboard.LEVEL_CHANGED;
 import static com.anysoftkeyboard.AnySoftKeyboard.RESISTANCE_DRIVER;
 import static com.anysoftkeyboard.AnySoftKeyboard.THEME_SELECTED;
@@ -47,9 +48,11 @@ public class ResistanceAlarm extends BroadcastReceiver {
         }
 
 
-        if(granted) {
+        if (granted) {
             //Safety check to avoid trying to get data for future time
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+            boolean debugMode = sharedPreferences.getBoolean(DEBUG_MODE, false);
+            Log.d(TAG, "onReceive: Is functioning");
             long startTime = sharedPreferences.getLong(LAST_CALCULATION, (System.currentTimeMillis() - period));
             long currTime = startTime + period;
             Log.d(TAG, "calculateFocusTime: Starting");
@@ -65,20 +68,21 @@ public class ResistanceAlarm extends BroadcastReceiver {
                 for (AppUsageInfo app : appUsageInfos) {
                     app.setAppName(resistanceData.getAppNameFromPackage(app.getPackageName(), context));
                 }
-                ResistanceDatabase resistanceDatabase = new ResistanceDatabase();
-                appUsageInfos = resistanceDatabase.getUserFocus(context, appUsageInfos);
+                ResistanceDatabase resistanceDatabase = ResistanceDatabase.getInstance(context);
+                appUsageInfos = resistanceDatabase.getUserFocus(appUsageInfos);
                 //Doing maths
                 Log.d(TAG, "onReceive: Permission granted");
                 mContext = context;
                 ResistanceMaths resistanceMaths = new ResistanceMaths();
                 boolean lightTheme = sharedPreferences.getBoolean(THEME_SELECTED, false);
                 double decision = resistanceMaths.calculateFocusTime(context, appUsageInfos, startTime, currTime);
-                int resistanceDriver = new ResistanceChanger().levelChanger(decision, sharedPreferences.getInt(RESISTANCE_DRIVER,0));
-                sharedPreferences.edit().putInt(RESISTANCE_DRIVER, resistanceDriver).apply();
-
-                sharedPreferences.edit().putBoolean(LEVEL_CHANGED, true).apply();
+                if (!debugMode) {
+                    Log.d(TAG, "onReceive: Actually changing anything");
+                    int resistanceDriver = new ResistanceChanger().levelChanger(decision, sharedPreferences.getInt(RESISTANCE_DRIVER, 0));
+                    sharedPreferences.edit().putInt(RESISTANCE_DRIVER, resistanceDriver).apply();
+                    sharedPreferences.edit().putBoolean(LEVEL_CHANGED, true).apply();
+                }
                 Log.d(TAG, "onReceive: ending ");
-                //  }
             }
         }
     }
@@ -86,29 +90,29 @@ public class ResistanceAlarm extends BroadcastReceiver {
     public void setAlarm(Context context) {
         Log.d(TAG, "setAlarm: started");
 
-            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            Intent intent = new Intent(context, ResistanceAlarm.class);
-            intent.setAction(ResistanceAlarm.RESISTANCE_ALARM);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context, ResistanceAlarm.class);
+        intent.setAction(ResistanceAlarm.RESISTANCE_ALARM);
 
-  //          boolean isWorking = (PendingIntent.getBroadcast(context, 18051994, intent, PendingIntent.FLAG_NO_CREATE) != null);
+        //          boolean isWorking = (PendingIntent.getBroadcast(context, 18051994, intent, PendingIntent.FLAG_NO_CREATE) != null);
 
 //           if(!isWorking) {
-               Log.d(TAG, "setAlarm: Setting up once again");
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 18051994, intent, 0);
-                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-                long lastCalculation = sharedPreferences.getLong(LAST_CALCULATION, 0);
-                Log.d(TAG, "setAlarm: last calculation is " + lastCalculation);
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeInMillis(System.currentTimeMillis());
-                Log.d(TAG, "setAlarm:  time in millis is " + calendar.getTimeInMillis());
+        Log.d(TAG, "setAlarm: Setting up once again");
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 18051994, intent, 0);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        long lastCalculation = sharedPreferences.getLong(LAST_CALCULATION, 0);
+        Log.d(TAG, "setAlarm: last calculation is " + lastCalculation);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        Log.d(TAG, "setAlarm:  time in millis is " + calendar.getTimeInMillis());
 
-                if ((calendar.getTimeInMillis() - lastCalculation) > period) {
-                    Log.d(TAG, "setAlarm: Setting up now");
-                    alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis() + 1000, AlarmManager.INTERVAL_HALF_HOUR, pendingIntent);
-                }else{
-                    Log.d(TAG, "setAlarm: setting up in 30 minutes");
-                    alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, lastCalculation + period, AlarmManager.INTERVAL_HALF_HOUR, pendingIntent);
-             }
+        if ((calendar.getTimeInMillis() - lastCalculation) > period) {
+            Log.d(TAG, "setAlarm: Setting up now");
+            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis() + 1000, AlarmManager.INTERVAL_HALF_HOUR, pendingIntent);
+        } else {
+            Log.d(TAG, "setAlarm: setting up in 30 minutes");
+            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, lastCalculation + period, AlarmManager.INTERVAL_HALF_HOUR, pendingIntent);
+        }
     }
 
     public void cancelAlarm(Context context) {

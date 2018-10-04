@@ -78,6 +78,7 @@ import com.anysoftkeyboard.powersave.PowerSaving;
 import com.anysoftkeyboard.prefs.AnimationsLevel;
 import com.anysoftkeyboard.receivers.PackagesChangedReceiver;
 import com.anysoftkeyboard.resistance.KeyboardModifiers;
+import com.anysoftkeyboard.resistance.ResistanceMaths;
 import com.anysoftkeyboard.rx.GenericOnError;
 import com.anysoftkeyboard.rx.RxSchedulers;
 import com.anysoftkeyboard.theme.KeyboardTheme;
@@ -2269,12 +2270,21 @@ public abstract class AnySoftKeyboard extends AnySoftKeyboardWithGestureTyping {
     }
 
     private void showOptionsMenu() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         showOptionsDialogWithData(getText(R.string.ime_name), R.mipmap.ic_launcher,
                 new CharSequence[]{
                         getText(R.string.ime_settings),
                         getText(R.string.override_dictionary),
                         getText(R.string.change_ime),
-                        getString(R.string.switch_incognito_template, getText(R.string.switch_incognito))},
+                        getString(R.string.switch_incognito_template, getText(R.string.switch_incognito)),
+                        getText(R.string.log_level),
+                        getText(R.string.focus_model),
+                        getText(R.string.focus_email),
+                        getText(R.string.focus_change),
+                        getText(R.string.view_reset),
+                        getText(R.string.theme_change),
+                        getText(R.string.debug_mode),
+                        getText(R.string.change_limit)},
                 (di, position) -> {
                     switch (position) {
                         case 0:
@@ -2290,6 +2300,70 @@ public abstract class AnySoftKeyboard extends AnySoftKeyboardWithGestureTyping {
                             mSuggest.setIncognitoMode(!mSuggest.isIncognitoMode());
                             getQuickKeyHistoryRecords().setIncognitoMode(mSuggest.isIncognitoMode());
                             setupInputViewWatermark();
+                            break;
+                        case 4:
+                            int logLevel = sharedPreferences.getInt(LOG_LEVEL,2);
+                            if(logLevel==2)
+                                logLevel=0;
+                            else
+                                logLevel++;
+                            sharedPreferences.edit().putInt(LOG_LEVEL,logLevel).apply();
+                            Toast.makeText(this, "Changed privacy level to " + logLevel +". Lower means less information shared.", Toast.LENGTH_LONG).show();
+                            break;
+                        case 5:
+                            int activeModel = sharedPreferences.getInt(FOCUS_MODEL, 0);
+                            int limitOfModels = new ResistanceMaths().getAmountOfModels() -1;
+                            if(activeModel<limitOfModels){
+                                activeModel++;
+                            }
+                            else {
+                                activeModel =0;
+                            }
+                            Toast.makeText(this, "Current active mode is " + activeModel+". If used accidentally - please set to 0.", Toast.LENGTH_LONG).show();
+                            sharedPreferences.edit().putInt(FOCUS_MODEL, activeModel).apply();
+                            break;
+                        case 6:
+                            String userName = sharedPreferences.getString(AUTH_EMAIL,"");
+                            Toast.makeText(this, "Your anonymous username is " + userName, Toast.LENGTH_SHORT).show();
+                            break;
+                        case 7:
+                            int rDriver = sharedPreferences.getInt(RESISTANCE_DRIVER, 0);
+                            if (rDriver == 4)
+                                rDriver =0;
+                            else
+                                rDriver++;
+                            sharedPreferences.edit().putInt(RESISTANCE_DRIVER, rDriver).apply();
+                            Toast.makeText(this, "Changing Resistance Level to " + (rDriver), Toast.LENGTH_SHORT).show();
+                            sharedPreferences.edit().putBoolean(LEVEL_CHANGED, true).apply();
+                            break;
+                        case 8:
+//                            resetAddOnsCaches(true);
+                            break;
+                        case 9:
+                            Boolean lightTheme = sharedPreferences.getBoolean(THEME_SELECTED, false);
+                            Log.d(TAG, "showOptionsMenu: Light theme eq" + lightTheme);
+                            sharedPreferences.edit().putBoolean(THEME_SELECTED,!lightTheme).apply();
+                            sharedPreferences.edit().putBoolean(LEVEL_CHANGED, true).apply();
+                            Toast.makeText(this, "Changing theme", Toast.LENGTH_SHORT).show();
+                            break;
+                        case 10:
+                            Boolean debugMode = sharedPreferences.getBoolean(DEBUG_MODE,false);
+                            sharedPreferences.edit().putBoolean(DEBUG_MODE, !debugMode).apply();
+                            if(debugMode)
+                                Toast.makeText(this, "Resistance Driver changed to Focus Time", Toast.LENGTH_LONG).show();
+                            else
+                                Toast.makeText(this, "Resistance Driver changed to amount of Key Pressed", Toast.LENGTH_LONG).show();
+                            break;
+                        case 11:
+                            int limitOfDebugTrigger = sharedPreferences.getInt(KEY_LIMIT,7);
+                            if(limitOfDebugTrigger != 7){
+                                sharedPreferences.edit().putInt(KEY_LIMIT,500).apply();
+                                Toast.makeText(this, "Changing trigger to big amount", Toast.LENGTH_SHORT).show();
+                            }
+                            else{
+                                sharedPreferences.edit().putInt(KEY_LIMIT,7).apply();
+                                Toast.makeText(this, "Changing trigger to low amount", Toast.LENGTH_SHORT).show();
+                            }
                             break;
                         default:
                             throw new IllegalArgumentException("Position " + position + " is not covered by the ASK settings dialog.");

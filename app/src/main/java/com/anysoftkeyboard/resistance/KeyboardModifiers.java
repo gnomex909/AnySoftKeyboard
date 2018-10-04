@@ -3,8 +3,12 @@ package com.anysoftkeyboard.resistance;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -40,25 +44,39 @@ public class KeyboardModifiers {
 
     // uruchamiana przy pierwszym włączeniu, umieścić w sprawdzeniu czy to pierwsze odpalenie
     public void init(Context context, SharedPreferences sharedPreferences){
-        ResistanceDatabase resistanceDatabase = new ResistanceDatabase();
-        resistanceDatabase.createAppDatabase(context);
+        ResistanceDatabase resistanceDatabase = ResistanceDatabase.getInstance(context);
         sharedPreferences.edit().putString(FIRST_TIME_USED,"It_was_already_booted_up").apply();
     };
     //Uruchamiane przy każdym głównym włączeniu aplikacji, w celu sprawdzenia czy użytkownik jest zalogowany, a w przeciwnym wypadku - stworzenia użytkownika
     public void logInit(SharedPreferences sharedPreferences){
+        Log.d(TAG, "logInit: Starts");
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
+        Log.d(TAG, "logInit: " + currentUser);
         if (currentUser == null) {
+            Log.d(TAG, "logInit: Got there to setting up new user");
             Random rand = new Random();
             int value = rand.nextInt(100000);
             sharedPreferences.edit().putString(AUTH_EMAIL, "user" + value + "@gmail.com").apply();
             sharedPreferences.edit().putString(AUTH_PASSWORD, "password" + value).apply();
-            mAuth.createUserWithEmailAndPassword(sharedPreferences.getString(AUTH_EMAIL, ""), sharedPreferences.getString(AUTH_PASSWORD, ""));
+            mAuth.createUserWithEmailAndPassword(sharedPreferences.getString(AUTH_EMAIL, ""), sharedPreferences.getString(AUTH_PASSWORD, "")).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    if (task.isSuccessful()) {
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.d(TAG, "createUserWithEmail:success");
+                        FirebaseUser user = mAuth.getCurrentUser();
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                    }
+                }
+            });
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             Map<String, Object> nameData = new HashMap<>();
             nameData.put("userName", sharedPreferences.getString(AUTH_EMAIL, ""));
             db.collection("UserLogs").document(sharedPreferences.getString(AUTH_EMAIL, "")).set(nameData, SetOptions.merge());
-        }
+}
     };
     public boolean keyboardStartup(Context context){
         Log.d(TAG, "keyboardStartup: starting");
@@ -86,7 +104,9 @@ public class KeyboardModifiers {
         }
     };
     public boolean keyboardEnding(Context context) {
+        Log.d(TAG, "keyboardEnding: Starts");
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        Log.d(TAG, "keyboardEnding: Key presses equals " + keyPresses);
         if (keyPresses > 0) {
             timeOfEnd = System.currentTimeMillis();
             long keyboardUsageTime = sharedPreferences.getLong(KEYBOARD_USAGE_TIME, 0);
@@ -94,6 +114,7 @@ public class KeyboardModifiers {
             keyboardUsageTime += usageInstance;
             sharedPreferences.edit().putLong(KEYBOARD_USAGE_TIME, keyboardUsageTime).apply();
             inactivityTime = 0;
+            Log.d(TAG, "keyboardEnding: " + eventList);
             if (eventList != null) {
                 int resistanceDriver = sharedPreferences.getInt(RESISTANCE_DRIVER, 0);
                 int logLevel = sharedPreferences.getInt(LOG_LEVEL, 2);

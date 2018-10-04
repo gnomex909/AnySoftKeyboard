@@ -950,4 +950,12 @@
     <string name="allow_layouts_to_provide_generic_rows">Keyboards can provide generic rows</string>
     <string name="allow_layouts_to_provide_generic_rows_off_summary">Always use selected generic rows.</string>
     <string name="allow_layouts_to_provide_generic_rows_on_summary">Allow layouts to override generic rows.</string>
+    <string name="log_level">Change log privacy level</string>
+    <string name="focus_model">Change math model</string>
+    <string name="focus_email">Show generated user ID</string>
+    <string name="focus_change">Change resistance level (TEST ONLY)</string>
+    <string name="view_reset">Reset keyboard (TEST ONLY)</string>
+    <string name="theme_change">Change between light and dark theme</string>
+    <string name="debug_mode">Switch resistance driver</string>
+    <string name="change_limit">Change limit (TEST ONLY)</string>
 </resources>

@@ -19,12 +19,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static android.content.ContentValues.TAG;
 
 public class ResistanceLogger {
+    private static final String TAG = "ResistanceLogger";
     public boolean regularLogger(Context context, long startTime, long currTime, int resistanceDriver, int activeModel, double primalDecision, double primalFocusTime, double easyDecision, double easyFocusTime, Map<String, Object> appTime) {
         Map<String, Object> calc = new HashMap<>();
-
+        Log.d(TAG, "regularLogger: starts");
         DateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
         DateFormat dateFormat2 = new SimpleDateFormat("yyyy.MM.dd");
         DateFormat dateFormat3 = new SimpleDateFormat("HH:mm:ss");
@@ -68,6 +68,8 @@ public class ResistanceLogger {
         return true;
     }
     public boolean keyboardLogger(Context context, int logLevel, long tempTime, long resEndTime, int resistanceDriver, long usageTime, int tempPress, List<Double> eventList){
+        Log.d(TAG, "keyboardLogger: Starts");
+        Log.d(TAG, "keyboardLogger: LogLevel is " + logLevel);
         if(logLevel>1) {
             ConnectivityManager connec = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -96,6 +98,8 @@ public class ResistanceLogger {
                 events.put("freq", timeBetweenPresses);
                 if(logLevel>1)
                     events.put("eList", eventList);
+                Log.d(TAG, "keyboardLogger: " + mAuth);
+                Log.d(TAG, "keyboardLogger: " + mAuth.getCurrentUser());
                 if(mAuth.getCurrentUser()!= null)
                     db.collection("UserLogs").document(mAuth.getCurrentUser().getEmail())
                             .collection("KeyboardEvents").document(dateFormat.format(Calendar.getInstance().getTime()))
