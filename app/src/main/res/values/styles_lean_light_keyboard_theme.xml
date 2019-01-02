@@ -105,4 +105,39 @@
         <item name="keyTextSize">@dimen/lean_big_key_text_size</item>
         <item name="keyTextStyle">bold</item>
     </style>
+    <style name="LeanLightBig0" parent="@style/LeanLightBig">
+        <item name="keyBackground">@drawable/lean_light_btn0</item>
+        <item name="keyPreviewBackground">@drawable/lean_light_popup_keyboard_background0</item>
+    </style>
+    <style name="LeanLightPopupRes0" parent="@style/LeanLightPopup">
+        <item name="android:background">@drawable/lean_light_popup_keyboard_background0</item>
+    </style>
+    <style name="LeanLightBig1" parent="@style/LeanLightBig">
+        <item name="keyBackground">@drawable/lean_light_btn1</item>
+        <item name="keyPreviewBackground">@drawable/lean_light_popup_keyboard_background1</item>
+    </style>
+    <style name="LeanLightPopupRes1" parent="@style/LeanLightPopup">
+        <item name="android:background">@drawable/lean_light_popup_keyboard_background1</item>
+    </style>
+    <style name="LeanLightBig2" parent="@style/LeanLightBig">
+        <item name="keyBackground">@drawable/lean_light_btn2</item>
+        <item name="keyPreviewBackground">@drawable/lean_light_popup_keyboard_background2</item>
+    </style>
+    <style name="LeanLightPopupRes2" parent="@style/LeanLightPopup">
+        <item name="android:background">@drawable/lean_light_popup_keyboard_background2</item>
+    </style>
+    <style name="LeanLightBig3" parent="@style/LeanLightBig">
+        <item name="keyBackground">@drawable/lean_light_btn3</item>
+        <item name="keyPreviewBackground">@drawable/lean_light_popup_keyboard_background3</item>
+    </style>
+    <style name="LeanLightPopupRes3" parent="@style/LeanLightPopup">
+        <item name="android:background">@drawable/lean_light_popup_keyboard_background3</item>
+    </style>
+    <style name="LeanLightBig4" parent="@style/LeanLightBig">
+        <item name="keyBackground">@drawable/lean_light_btn4</item>
+        <item name="keyPreviewBackground">@drawable/lean_light_popup_keyboard_background4</item>
+    </style>
+    <style name="LeanLightPopupRes4" parent="@style/LeanLightPopup">
+        <item name="android:background">@drawable/lean_light_popup_keyboard_background4</item>
+    </style>
 </resources>

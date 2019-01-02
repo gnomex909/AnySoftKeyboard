@@ -18,19 +18,28 @@ package com.anysoftkeyboard;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.AppOpsManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.util.TypedValue;
 import android.view.KeyEvent;
@@ -70,6 +79,8 @@ import com.anysoftkeyboard.keyboards.views.CandidateView;
 import com.anysoftkeyboard.powersave.PowerSaving;
 import com.anysoftkeyboard.prefs.AnimationsLevel;
 import com.anysoftkeyboard.receivers.PackagesChangedReceiver;
+import com.anysoftkeyboard.resistance.KeyboardModifiers;
+import com.anysoftkeyboard.resistance.ResistanceMaths;
 import com.anysoftkeyboard.rx.GenericOnError;
 import com.anysoftkeyboard.rx.RxSchedulers;
 import com.anysoftkeyboard.theme.KeyboardTheme;
@@ -96,6 +107,19 @@ import io.reactivex.Observable;
  * Input method implementation for QWERTY-ish keyboard.
  */
 public abstract class AnySoftKeyboard extends AnySoftKeyboardIncognito {
+
+    public static final String FOCUS_MODEL="FocusModel";
+    public static final String RESISTANCE_DRIVER = "RESISTANCE_DRIVER";
+    public static final String KEYBOARD_USAGE_TIME = "Keyboard_usage_time";
+    public static final String FIRST_TIME_USED = "databaseBootingUp";
+    public static final String AUTH_EMAIL="authenticationEmail";
+    public static final String AUTH_PASSWORD="authenticationPassword";
+    public static final String LOG_LEVEL = "loggingPrivacyLevel";
+    public static final String LEVEL_CHANGED = "resistanceLevelhasChanged";
+    public static final String CHANGED_REACT = "needToChangeReaction";
+    public static final String THEME_SELECTED = "isLightThemeSelected";
+    public static final String DEBUG_MODE = "debugModeOnline1";
+    public static final String KEY_LIMIT = "keyLimitForChange";
 
     private static final long ONE_FRAME_DELAY = 1000L / 60L;
     private static final long CLOSE_DICTIONARIES_DELAY = 10 * ONE_FRAME_DELAY;
@@ -161,6 +185,8 @@ public abstract class AnySoftKeyboard extends AnySoftKeyboardIncognito {
     private boolean mFrenchSpacePunctuationBehavior;
 
     private ImageView mCandidatesCloseIcon;
+    private KeyboardModifiers mKeyboardModifiers;
+
 
     public AnySoftKeyboard() {
         super();
@@ -190,6 +216,23 @@ public abstract class AnySoftKeyboard extends AnySoftKeyboardIncognito {
     @Override
     public void onCreate() {
         super.onCreate();
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        mKeyboardModifiers = new KeyboardModifiers();
+        if(!(sharedPreferences.getString(FIRST_TIME_USED,"").length()>0)){
+            mKeyboardModifiers.init(this, sharedPreferences);
+        }
+        ConnectivityManager connec = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connec != null && (
+                (connec.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) ||
+                        (connec.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED))) {
+            mKeyboardModifiers.logInit(sharedPreferences);
+        };
+        if (!isAccessGranted()) {
+            Toast.makeText(this, "Please enable Usage Statistics acces for AnySoftKeyboard to take part in this project", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+            startActivity(intent);
+        }
+        Log.d(TAG, "onCreate: Shared check");
         mOrientation = getResources().getConfiguration().orientation;
         if ((!BuildConfig.DEBUG) && DeveloperUtils.hasTracingRequested(getApplicationContext())) {
             try {
@@ -312,7 +355,22 @@ public abstract class AnySoftKeyboard extends AnySoftKeyboardIncognito {
 
         mVoiceRecognitionTrigger = new VoiceRecognitionTrigger(this);
     }
+    private boolean isAccessGranted() {
+        try {
+            PackageManager packageManager = getPackageManager();
+            ApplicationInfo applicationInfo = packageManager.getApplicationInfo(getPackageName(), 0);
+            AppOpsManager appOpsManager = (AppOpsManager) getSystemService(Context.APP_OPS_SERVICE);
+            int mode = 0;
+            if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.KITKAT) {
+                mode = appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
+                        applicationInfo.uid, applicationInfo.packageName);
+            }
+            return (mode == AppOpsManager.MODE_ALLOWED);
 
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
+    }
     private static CondenseType parseCondenseType(String prefCondenseType) {
         switch (prefCondenseType) {
             case "split":
@@ -392,7 +450,15 @@ public abstract class AnySoftKeyboard extends AnySoftKeyboardIncognito {
     public void onStartInputView(final EditorInfo attribute, final boolean restarting) {
         Logger.v(TAG, "onStartInputView(EditorInfo{imeOptions %d, inputType %d}, restarting %s",
                 attribute.imeOptions, attribute.inputType, restarting);
-
+        if(!restarting){
+            Log.d(TAG, "onStartInputView: Starting up keyboard");
+            mKeyboardModifiers = new KeyboardModifiers();
+            if(mKeyboardModifiers.keyboardStartup(this)){
+//                if(getInputView() != null){
+//                    getInputView().resetInputView();
+//                }
+            };
+        }
         super.onStartInputView(attribute, restarting);
 
         if (mVoiceRecognitionTrigger != null) {
@@ -506,6 +572,7 @@ public abstract class AnySoftKeyboard extends AnySoftKeyboardIncognito {
     @Override
     public void onFinishInput() {
         super.onFinishInput();
+        boolean debugMode = mKeyboardModifiers.keyboardEnding(this);
         mPredictionOn = false;
 
         final IBinder imeToken = getImeToken();
@@ -937,6 +1004,7 @@ public abstract class AnySoftKeyboard extends AnySoftKeyboardIncognito {
     }
 
     private void onFunctionKey(final int primaryCode, final Key key, final int multiTapIndex, final int[] nearByKeyCodes, final boolean fromUI) {
+        mKeyboardModifiers.handleKey(this, true);
         if (BuildConfig.DEBUG) Logger.d(TAG, "onFunctionKey %d", primaryCode);
 
         final InputConnection ic = getCurrentInputConnection();
@@ -1158,6 +1226,7 @@ public abstract class AnySoftKeyboard extends AnySoftKeyboardIncognito {
     }
 
     private void onNonFunctionKey(final int primaryCode, final Key key, final int multiTapIndex, final int[] nearByKeyCodes, final boolean fromUI) {
+        mKeyboardModifiers.handleKey(this, false);
         if (BuildConfig.DEBUG) Logger.d(TAG, "onFunctionKey %d", primaryCode);
 
         final InputConnection ic = getCurrentInputConnection();
@@ -2205,12 +2274,21 @@ public abstract class AnySoftKeyboard extends AnySoftKeyboardIncognito {
     }
 
     private void showOptionsMenu() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         showOptionsDialogWithData(getText(R.string.ime_name), R.mipmap.ic_launcher,
                 new CharSequence[]{
                         getText(R.string.ime_settings),
                         getText(R.string.override_dictionary),
                         getText(R.string.change_ime),
-                        getString(R.string.switch_incognito_template, getText(R.string.switch_incognito))},
+                        getString(R.string.switch_incognito_template, getText(R.string.switch_incognito)),
+                        getText(R.string.log_level),
+                        getText(R.string.focus_model),
+                        getText(R.string.focus_email),
+                        getText(R.string.focus_change),
+                        getText(R.string.view_reset),
+                        getText(R.string.theme_change),
+                        getText(R.string.debug_mode),
+                        getText(R.string.change_limit)},
                 (di, position) -> {
                     switch (position) {
                         case 0:
@@ -2224,6 +2302,81 @@ public abstract class AnySoftKeyboard extends AnySoftKeyboardIncognito {
                             break;
                         case 3:
                             setIncognito(!mSuggest.isIncognitoMode(), true);
+                            break;
+                        case 4:
+                            int logLevel = sharedPreferences.getInt(LOG_LEVEL,2);
+                            if(logLevel==2)
+                                logLevel=0;
+                            else
+                                logLevel++;
+                            sharedPreferences.edit().putInt(LOG_LEVEL,logLevel).apply();
+                            Toast.makeText(this, "Changed privacy level to " + logLevel +". Lower means less information shared.", Toast.LENGTH_LONG).show();
+                            break;
+                        case 5:
+                            int activeModel = sharedPreferences.getInt(FOCUS_MODEL, 0);
+                            int limitOfModels = new ResistanceMaths().getAmountOfModels() -1;
+                            if(activeModel<limitOfModels){
+                                activeModel++;
+                            }
+                            else {
+                                activeModel =0;
+                            }
+                            Toast.makeText(this, "Current active mode is " + activeModel+". If used accidentally - please set to 0.", Toast.LENGTH_LONG).show();
+                            sharedPreferences.edit().putInt(FOCUS_MODEL, activeModel).apply();
+                            break;
+                        case 6:
+                            String userName = sharedPreferences.getString(AUTH_EMAIL,"");
+                            Toast.makeText(this, "Your anonymous username is " + userName, Toast.LENGTH_SHORT).show();
+                            break;
+                        case 7:
+                            int rDriver = sharedPreferences.getInt(RESISTANCE_DRIVER, 0);
+                            if (rDriver == 4)
+                                rDriver =0;
+                            else
+                                rDriver++;
+                            sharedPreferences.edit().putInt(RESISTANCE_DRIVER, rDriver).apply();
+                            Toast.makeText(this, "Changing Resistance Level to " + (rDriver), Toast.LENGTH_SHORT).show();
+                            sharedPreferences.edit().putBoolean(LEVEL_CHANGED, true).apply();
+                            break;
+                        case 8:
+//                            resetAddOnsCaches(true);
+                            break;
+                        case 9:
+                            Boolean lightTheme = sharedPreferences.getBoolean(THEME_SELECTED, false);
+                            Log.d(TAG, "showOptionsMenu: Light theme eq" + lightTheme);
+                            sharedPreferences.edit().putBoolean(THEME_SELECTED,!lightTheme).apply();
+                            sharedPreferences.edit().putBoolean(LEVEL_CHANGED, true).apply();
+                            Toast.makeText(this, "Changing theme", Toast.LENGTH_SHORT).show();
+                            break;
+                        case 10:
+                            int debugMode = sharedPreferences.getInt(DEBUG_MODE,0);
+                            if(debugMode!=3){
+                                debugMode++;
+                            }else{
+                                debugMode=0;
+                            }
+                            sharedPreferences.edit().putInt(DEBUG_MODE, debugMode).apply();
+                            if(debugMode == 0)
+                                Toast.makeText(this, "Resistance Driver changed to Focus Time", Toast.LENGTH_LONG).show();
+                            else if(debugMode == 1)
+                                Toast.makeText(this, "Resistance Driver changed to amount of Key Pressed", Toast.LENGTH_LONG).show();
+                            else if(debugMode == 2){
+                                Toast.makeText(this, "Resistance Driver changed to Screen Driver", Toast.LENGTH_LONG).show();
+                            }
+                            else{
+                                Toast.makeText(this, "Demonstration mode is on", Toast.LENGTH_LONG).show();
+                            }
+                            break;
+                        case 11:
+                            int limitOfDebugTrigger = sharedPreferences.getInt(KEY_LIMIT,7);
+                            if(limitOfDebugTrigger != 7){
+                                sharedPreferences.edit().putInt(KEY_LIMIT,500).apply();
+                                Toast.makeText(this, "Changing trigger to big amount", Toast.LENGTH_SHORT).show();
+                            }
+                            else{
+                                sharedPreferences.edit().putInt(KEY_LIMIT,7).apply();
+                                Toast.makeText(this, "Changing trigger to low amount", Toast.LENGTH_SHORT).show();
+                            }
                             break;
                         default:
                             throw new IllegalArgumentException("Position " + position + " is not covered by the ASK settings dialog.");
