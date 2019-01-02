@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "639260715271",
+    "firebase_url": "https://resistive-keyboard.firebaseio.com",
+    "project_id": "resistive-keyboard",
+    "storage_bucket": "resistive-keyboard.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:639260715271:android:ccae450962c9371f",
+        "android_client_info": {
+          "package_name": "com.menny.android.anysoftkeyboard"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "639260715271-4tdfphjur41pf5o7sgjv8pcelcdoerl3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOhKEdRX2rV_xkyHr8sLPPubi-bkQIOxA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

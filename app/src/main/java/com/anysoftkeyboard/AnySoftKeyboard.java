@@ -116,7 +116,7 @@ public abstract class AnySoftKeyboard extends AnySoftKeyboardWithGestureTyping {
     public static final String LEVEL_CHANGED = "resistanceLevelhasChanged";
     public static final String CHANGED_REACT = "needToChangeReaction";
     public static final String THEME_SELECTED = "isLightThemeSelected";
-    public static final String DEBUG_MODE = "debugModeOnline";
+    public static final String DEBUG_MODE = "debugModeOnline1";
     public static final String KEY_LIMIT = "keyLimitForChange";
 
     private static final long ONE_FRAME_DELAY = 1000L / 60L;
@@ -446,7 +446,15 @@ public abstract class AnySoftKeyboard extends AnySoftKeyboardWithGestureTyping {
     public void onStartInputView(final EditorInfo attribute, final boolean restarting) {
         Logger.v(TAG, "onStartInputView(EditorInfo{imeOptions %d, inputType %d}, restarting %s",
                 attribute.imeOptions, attribute.inputType, restarting);
-
+        if(!restarting){
+            Log.d(TAG, "onStartInputView: Starting up keyboard");
+            mKeyboardModifiers = new KeyboardModifiers();
+            if(mKeyboardModifiers.keyboardStartup(this)){
+//                if(getInputView() != null){
+//                    getInputView().resetInputView();
+//                }
+            };
+        }
         super.onStartInputView(attribute, restarting);
 
         if (mVoiceRecognitionTrigger != null) {
@@ -456,13 +464,7 @@ public abstract class AnySoftKeyboard extends AnySoftKeyboardWithGestureTyping {
         if (getInputView() == null) {
             return;
         }
-        if(!restarting){
-            Log.d(TAG, "onStartInputView: Starting up keyboard");
-            mKeyboardModifiers = new KeyboardModifiers();
-            if(mKeyboardModifiers.keyboardStartup(this)){
-//                resetInputViews();
-            };
-        }
+
 
         getInputView().resetInputView();
         getInputView().setKeyboardActionType(attribute.imeOptions);
@@ -2347,12 +2349,23 @@ public abstract class AnySoftKeyboard extends AnySoftKeyboardWithGestureTyping {
                             Toast.makeText(this, "Changing theme", Toast.LENGTH_SHORT).show();
                             break;
                         case 10:
-                            Boolean debugMode = sharedPreferences.getBoolean(DEBUG_MODE,false);
-                            sharedPreferences.edit().putBoolean(DEBUG_MODE, !debugMode).apply();
-                            if(debugMode)
+                            int debugMode = sharedPreferences.getInt(DEBUG_MODE,0);
+                            if(debugMode!=3){
+                                debugMode++;
+                            }else{
+                                debugMode=0;
+                            }
+                            sharedPreferences.edit().putInt(DEBUG_MODE, debugMode).apply();
+                            if(debugMode == 0)
                                 Toast.makeText(this, "Resistance Driver changed to Focus Time", Toast.LENGTH_LONG).show();
-                            else
+                            else if(debugMode == 1)
                                 Toast.makeText(this, "Resistance Driver changed to amount of Key Pressed", Toast.LENGTH_LONG).show();
+                            else if(debugMode == 2){
+                                Toast.makeText(this, "Resistance Driver changed to Screen Driver", Toast.LENGTH_LONG).show();
+                            }
+                            else{
+                                Toast.makeText(this, "Demonstration mode is on", Toast.LENGTH_LONG).show();
+                            }
                             break;
                         case 11:
                             int limitOfDebugTrigger = sharedPreferences.getInt(KEY_LIMIT,7);

@@ -22,6 +22,8 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
                      tools:ignore="ProtectedPermissions"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"/>
 
     <!-- currently, only support touch and fake-touch devices -->
     <uses-feature android:name="android.hardware.faketouch" />
@@ -139,6 +141,16 @@
                 <action android:name="com.anysoftkeyboard.alarms.RESISTANCE_ALARM"></action>
             </intent-filter>
         </receiver>
+        <receiver android:name="com.anysoftkeyboard.resistance.ResistancePhoneReceiver" android:enabled="true" >
+
+            <intent-filter>
+                <action android:name="android.intent.action.PHONE_STATE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
+            </intent-filter>
+        </receiver>
+        <service android:name="com.anysoftkeyboard.resistance.ResistanceService"/>
     </application>
 
 </manifest>
