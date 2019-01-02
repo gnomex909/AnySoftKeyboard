@@ -133,6 +133,7 @@ public class ResistanceDatabase extends SQLiteOpenHelper {
         return appUsageInfos;
     }
     public void addScreenEvent(ScreenEvent screenEvent){
+        Log.d(TAG, "addScreenEvent: Started");
         SQLiteDatabase sqLiteDatabase = getWritableDatabase();
         sqLiteDatabase.execSQL("INSERT INTO " + EVENT_TABLE +" VALUES(" + screenEvent.getTimeStamp()+","+screenEvent.isScreenOn()+");");
     }
@@ -148,6 +149,24 @@ public class ResistanceDatabase extends SQLiteOpenHelper {
                 screenEvents.add(screenEvent);
             }while(query.moveToNext());
         }
+        query.close();
+        Log.d(TAG, "getScreenEvents: " + screenEvents);
+        return screenEvents;
+    }
+    public List<ScreenEvent> getAllScreenEvents(){
+        SQLiteDatabase sqLiteDatabase = getReadableDatabase();
+        ArrayList<ScreenEvent> screenEvents = new ArrayList<>();
+        Cursor query = sqLiteDatabase.query(EVENT_TABLE, null, null,null, null, null, null);
+        if(query.moveToFirst()){
+            do{
+                ScreenEvent screenEvent = new ScreenEvent();
+                screenEvent.setTimeStamp(query.getLong(0));
+                screenEvent.setScreenOn(query.getInt(1));
+                screenEvents.add(screenEvent);
+            }while(query.moveToNext());
+        }
+        query.close();
+        Log.d(TAG, "getScreenEvents: " + screenEvents);
         return screenEvents;
     }
 }

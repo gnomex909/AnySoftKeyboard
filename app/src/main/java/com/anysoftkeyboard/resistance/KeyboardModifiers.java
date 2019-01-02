@@ -1,6 +1,7 @@
 package com.anysoftkeyboard.resistance;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -40,7 +41,7 @@ public class KeyboardModifiers {
     private long inactivityTime;
     private ArrayList<Double> eventList;
     private long inactivityTreshold = 20 *1000;
-    boolean debugMode;
+    int debugMode;
 
     // uruchamiana przy pierwszym włączeniu, umieścić w sprawdzeniu czy to pierwsze odpalenie
     public void init(Context context, SharedPreferences sharedPreferences){
@@ -49,6 +50,7 @@ public class KeyboardModifiers {
     };
     //Uruchamiane przy każdym głównym włączeniu aplikacji, w celu sprawdzenia czy użytkownik jest zalogowany, a w przeciwnym wypadku - stworzenia użytkownika
     public void logInit(SharedPreferences sharedPreferences){
+
         Log.d(TAG, "logInit: Starts");
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -79,6 +81,8 @@ public class KeyboardModifiers {
 }
     };
     public boolean keyboardStartup(Context context){
+        Intent intent = new Intent(context, ResistanceService.class);
+        context.startService(intent);
         Log.d(TAG, "keyboardStartup: starting");
         debugTrigger = 0;
         keyPresses = 0;
@@ -91,20 +95,22 @@ public class KeyboardModifiers {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         boolean themeChanged = sharedPreferences.getBoolean(LEVEL_CHANGED, false);
         Log.d(TAG, "keyboardStartup: Theme changed equals " + themeChanged);
-        if(themeChanged) {
-            sharedPreferences.edit().putBoolean(LEVEL_CHANGED, false).apply();
-//            sharedPreferences.edit().putBoolean(CHANGED_REACT, true).apply();
-            boolean lightTheme = sharedPreferences.getBoolean(THEME_SELECTED, false);
-            int rDriver = sharedPreferences.getInt(RESISTANCE_DRIVER, 0);
-            new ThemeChanger().specificThemeChanger(context, rDriver, lightTheme);
-            return true;
-        }
-        else{
+//        if(themeChanged) {
+//            sharedPreferences.edit().putBoolean(LEVEL_CHANGED, false).apply();
+////            sharedPreferences.edit().putBoolean(CHANGED_REACT, true).apply();
+//            boolean lightTheme = sharedPreferences.getBoolean(THEME_SELECTED, false);
+//            int rDriver = sharedPreferences.getInt(RESISTANCE_DRIVER, 0);
+//            new ThemeChanger().specificThemeChanger(context, rDriver, lightTheme);
+//            return true;
+//        }
+//        else{
             return false;
-        }
+//        }
     };
     public boolean keyboardEnding(Context context) {
         Log.d(TAG, "keyboardEnding: Starts");
+//        ResistanceDatabase resistanceDatabase = ResistanceDatabase.getInstance(context);
+//        resistanceDatabase.getAllScreenEvents();
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         Log.d(TAG, "keyboardEnding: Key presses equals " + keyPresses);
         if (keyPresses > 0) {
@@ -122,10 +128,11 @@ public class KeyboardModifiers {
             }
         }
 
-        debugMode = sharedPreferences.getBoolean(DEBUG_MODE, false);
-        if (debugMode) {
+        debugMode = sharedPreferences.getInt(DEBUG_MODE, 0);
+        if (debugMode == 1 && keyPresses > 0) {
             int limit = sharedPreferences.getInt(KEY_LIMIT, 7);
-            if (keyPresses < limit && limit == 7) {
+            if (keyPresses <= limit && limit == 7) {
+                Log.d(TAG, "keyboardEnding: Got there, lowering rDriver");
                 int rDriver = sharedPreferences.getInt(RESISTANCE_DRIVER, 0);
                 if (rDriver != 0) {
                     rDriver--;
@@ -134,14 +141,40 @@ public class KeyboardModifiers {
                 }
             }
         }
+        if(debugMode == 3 && keyPresses > 0){
+            int rDriver = sharedPreferences.getInt(RESISTANCE_DRIVER, 0);
+            if (rDriver != 4) {
+                rDriver++;
+                sharedPreferences.edit().putInt(RESISTANCE_DRIVER, rDriver).apply();
+                sharedPreferences.edit().putBoolean(LEVEL_CHANGED, true).apply();
+            }else{
+                rDriver=0;
+                sharedPreferences.edit().putInt(RESISTANCE_DRIVER, rDriver).apply();
+                sharedPreferences.edit().putBoolean(LEVEL_CHANGED, true).apply();
+            }
+        }
         keyPresses =0;
-        return debugMode;
+
+        boolean themeChanged = sharedPreferences.getBoolean(LEVEL_CHANGED, false);
+        Log.d(TAG, "keyboardStartup: Theme changed equals " + themeChanged);
+        if(themeChanged) {
+            sharedPreferences.edit().putBoolean(LEVEL_CHANGED, false).apply();
+//            sharedPreferences.edit().putBoolean(CHANGED_REACT, true).apply();
+            boolean lightTheme = sharedPreferences.getBoolean(THEME_SELECTED, false);
+            int rDriver = sharedPreferences.getInt(RESISTANCE_DRIVER, 0);
+            new ThemeChanger().specificThemeChanger(context, rDriver, lightTheme);
+//            return true;
+        }
+        else{
+//            return false;
+        }
+        return true;
     };
     public void handleKey(Context context, boolean isFunction){
         Log.d(TAG, "handleKey: starts");
         keyPresses++;
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        debugMode = sharedPreferences.getBoolean(DEBUG_MODE, false);
+        debugMode = sharedPreferences.getInt(DEBUG_MODE, 0);
         long currentTime = System.currentTimeMillis();
         if(currentTime - inactivityTimestamp > inactivityTreshold){
             inactivityTime += (currentTime - inactivityTimestamp);
@@ -156,13 +189,17 @@ public class KeyboardModifiers {
                 eventList.add(Double.parseDouble("" + event + "." + 44));
             }
         }
-        if(debugMode){
+        if(debugMode == 1){
+            Log.d(TAG, "handleKey: Got there, upping");
             debugTrigger++;
             int limit = sharedPreferences.getInt(KEY_LIMIT,7);
             if(debugTrigger>limit){
                 int rDriver = sharedPreferences.getInt(RESISTANCE_DRIVER, 0);
-                if (rDriver != 4)
+                if (rDriver != 4) {
+                    Log.d(TAG, "handleKey: Got there, rD: "+rDriver);
                     rDriver++;
+                    debugTrigger=0;
+                }
                 sharedPreferences.edit().putInt(RESISTANCE_DRIVER, rDriver).apply();
                 sharedPreferences.edit().putBoolean(LEVEL_CHANGED, true).apply();
             }

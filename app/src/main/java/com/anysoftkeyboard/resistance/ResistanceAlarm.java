@@ -17,7 +17,6 @@ import java.util.Calendar;
 import static com.anysoftkeyboard.AnySoftKeyboard.DEBUG_MODE;
 import static com.anysoftkeyboard.AnySoftKeyboard.LEVEL_CHANGED;
 import static com.anysoftkeyboard.AnySoftKeyboard.RESISTANCE_DRIVER;
-import static com.anysoftkeyboard.AnySoftKeyboard.THEME_SELECTED;
 import static com.anysoftkeyboard.resistance.ResistanceMaths.LAST_CALCULATION;
 import static com.anysoftkeyboard.resistance.ResistanceMaths.period;
 
@@ -51,7 +50,7 @@ public class ResistanceAlarm extends BroadcastReceiver {
         if (granted) {
             //Safety check to avoid trying to get data for future time
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-            boolean debugMode = sharedPreferences.getBoolean(DEBUG_MODE, false);
+            int debugMode = sharedPreferences.getInt(DEBUG_MODE, 0);
             Log.d(TAG, "onReceive: Is functioning");
             long startTime = sharedPreferences.getLong(LAST_CALCULATION, (System.currentTimeMillis() - period));
             long currTime = startTime + period;
@@ -74,9 +73,8 @@ public class ResistanceAlarm extends BroadcastReceiver {
                 Log.d(TAG, "onReceive: Permission granted");
                 mContext = context;
                 ResistanceMaths resistanceMaths = new ResistanceMaths();
-                boolean lightTheme = sharedPreferences.getBoolean(THEME_SELECTED, false);
                 double decision = resistanceMaths.calculateFocusTime(context, appUsageInfos, startTime, currTime);
-                if (!debugMode) {
+                if (debugMode == 0) {
                     Log.d(TAG, "onReceive: Actually changing anything");
                     int resistanceDriver = new ResistanceChanger().levelChanger(decision, sharedPreferences.getInt(RESISTANCE_DRIVER, 0));
                     sharedPreferences.edit().putInt(RESISTANCE_DRIVER, resistanceDriver).apply();
