@@ -25,7 +25,6 @@ import static com.anysoftkeyboard.AnySoftKeyboard.AUTH_PASSWORD;
 import static com.anysoftkeyboard.AnySoftKeyboard.DEBUG_MODE;
 import static com.anysoftkeyboard.AnySoftKeyboard.FIRST_TIME_USED;
 import static com.anysoftkeyboard.AnySoftKeyboard.KEYBOARD_USAGE_TIME;
-import static com.anysoftkeyboard.AnySoftKeyboard.KEY_LIMIT;
 import static com.anysoftkeyboard.AnySoftKeyboard.LEVEL_CHANGED;
 import static com.anysoftkeyboard.AnySoftKeyboard.LOG_LEVEL;
 import static com.anysoftkeyboard.AnySoftKeyboard.RESISTANCE_DRIVER;
@@ -129,19 +128,19 @@ public class KeyboardModifiers {
         }
 
         debugMode = sharedPreferences.getInt(DEBUG_MODE, 0);
-        if (debugMode == 1 && keyPresses > 0) {
-            int limit = sharedPreferences.getInt(KEY_LIMIT, 7);
-            if (keyPresses <= limit && limit == 7) {
-                Log.d(TAG, "keyboardEnding: Got there, lowering rDriver");
-                int rDriver = sharedPreferences.getInt(RESISTANCE_DRIVER, 0);
-                if (rDriver != 0) {
-                    rDriver--;
-                    sharedPreferences.edit().putInt(RESISTANCE_DRIVER, rDriver).apply();
-                    sharedPreferences.edit().putBoolean(LEVEL_CHANGED, true).apply();
-                }
-            }
-        }
-        if(debugMode == 3 && keyPresses > 0){
+//        if (debugMode == 1 && keyPresses > 0) {
+//            int limit = sharedPreferences.getInt(KEY_LIMIT, 7);
+//            if (keyPresses <= limit && limit == 7) {
+//                Log.d(TAG, "keyboardEnding: Got there, lowering rDriver");
+//                int rDriver = sharedPreferences.getInt(RESISTANCE_DRIVER, 0);
+//                if (rDriver != 0) {
+//                    rDriver--;
+//                    sharedPreferences.edit().putInt(RESISTANCE_DRIVER, rDriver).apply();
+//                    sharedPreferences.edit().putBoolean(LEVEL_CHANGED, true).apply();
+//                }
+//            }
+//        }
+        if(debugMode == 1 && keyPresses > 0){
             int rDriver = sharedPreferences.getInt(RESISTANCE_DRIVER, 0);
             if (rDriver != 4) {
                 rDriver++;
@@ -189,21 +188,21 @@ public class KeyboardModifiers {
                 eventList.add(Double.parseDouble("" + event + "." + 44));
             }
         }
-        if(debugMode == 1){
-            Log.d(TAG, "handleKey: Got there, upping");
-            debugTrigger++;
-            int limit = sharedPreferences.getInt(KEY_LIMIT,7);
-            if(debugTrigger>limit){
-                int rDriver = sharedPreferences.getInt(RESISTANCE_DRIVER, 0);
-                if (rDriver != 4) {
-                    Log.d(TAG, "handleKey: Got there, rD: "+rDriver);
-                    rDriver++;
-                    debugTrigger=0;
-                }
-                sharedPreferences.edit().putInt(RESISTANCE_DRIVER, rDriver).apply();
-                sharedPreferences.edit().putBoolean(LEVEL_CHANGED, true).apply();
-            }
-        }
+//        if(debugMode == 1){
+//            Log.d(TAG, "handleKey: Got there, upping");
+//            debugTrigger++;
+//            int limit = sharedPreferences.getInt(KEY_LIMIT,7);
+//            if(debugTrigger>limit){
+//                int rDriver = sharedPreferences.getInt(RESISTANCE_DRIVER, 0);
+//                if (rDriver != 4) {
+//                    Log.d(TAG, "handleKey: Got there, rD: "+rDriver);
+//                    rDriver++;
+//                    debugTrigger=0;
+//                }
+//                sharedPreferences.edit().putInt(RESISTANCE_DRIVER, rDriver).apply();
+//                sharedPreferences.edit().putBoolean(LEVEL_CHANGED, true).apply();
+//            }
+//        }
     }
     public void handleNonFunctionKey(){
 

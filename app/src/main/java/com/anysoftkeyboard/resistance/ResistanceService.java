@@ -15,6 +15,10 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.anysoftkeyboard.AnySoftKeyboard;
+import com.menny.android.anysoftkeyboard.R;
+
+import static com.anysoftkeyboard.resistance.ScreenEvent.SCREEN_OFF;
+import static com.anysoftkeyboard.resistance.ScreenEvent.SCREEN_ON;
 
 public class ResistanceService extends Service {
     private static final String TAG = "ResistanceService";
@@ -36,12 +40,13 @@ public class ResistanceService extends Service {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Resistance Keyboard")
-                .setContentText("Screen usage registration service is running")
-                .setContentIntent(pendingIntent);
+                .setContentText("Resistive keyboard is running")
+                .setContentIntent(pendingIntent)
+                .setSmallIcon(R.drawable.baseline_assignment_turned_in_black_24);
         Notification notification = builder.build();
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID,"Resistance Keyboard", NotificationManager.IMPORTANCE_LOW);
-            channel.setDescription("Screen usage registration service is running");
+            channel.setDescription("Resistive keyboard is running");
             NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.createNotificationChannel(channel);
         }
@@ -56,11 +61,11 @@ public class ResistanceService extends Service {
                 Log.d(TAG, "onReceive: Started");
                 ScreenEvent screenEvent;
                 if ("android.intent.action.SCREEN_ON".equals(intent.getAction())) {
-                    screenEvent = new ScreenEvent(System.currentTimeMillis(), 1);
+                    screenEvent = new ScreenEvent(System.currentTimeMillis(), SCREEN_ON);
                     Log.d(TAG, "onReceiveService: Screen on");
 
                 }else{
-                    screenEvent = new ScreenEvent(System.currentTimeMillis(), 0);
+                    screenEvent = new ScreenEvent(System.currentTimeMillis(), SCREEN_OFF);
                     Log.d(TAG, "onReceiveService: Screen off");
                 }
                 ResistanceDatabase resistanceDatabase = ResistanceDatabase.getInstance(context.getApplicationContext());

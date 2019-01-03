@@ -22,7 +22,7 @@ apply plugin: 'net.evendanan.versiongenerator'
 def generators = [
         new net.evendanan.versiongenerator.generators.EnvBuildVersionGenerator.CircleCi(
                 1650/*adding to version. Should not ever change*/,
-                -2575-2600 /*decrementing due to minor, every minor/major bump, this should be decremented*/),
+                -2575 - 2600 /*decrementing due to minor, every minor/major bump, this should be decremented*/),
         new net.evendanan.versiongenerator.generators.StaticVersionGenerator()
 ]
 
@@ -61,7 +61,16 @@ android {
             }
         }
     }
+    allprojects {
 
+        gradle.projectsEvaluated {
+            tasks.withType(JavaCompile) {
+                options.compilerArgs << "-Xlint:unchecked"
+            }
+        }
+
+        // ...
+    }
     buildTypes {
         release {
             signingConfig signingConfigs.release
@@ -93,7 +102,7 @@ android {
 play {
     track = System.getProperty('deployChannel', 'alpha')
     serviceAccountEmail = System.getenv().getOrDefault('PUBLISH_APK_SERVICE_ACCOUNT_EMAIL', 'dummy@example.com')
-    serviceAccountCredentials = file('/tmp/apk_upload_key.p12')
+//    serviceAccountCredentials = file('/tmp/apk_upload_key.p12')
 }
 
 //verifying release-notes file
@@ -106,7 +115,7 @@ if (playStoreWhatsNewFile.text.length() > 500) {
     println("Locale " + Locale.getDefault())
     println("file encoding " + CharsetToolkit.defaultSystemCharset)
     println("File contents:")
-    println("***" +  playStoreWhatsNewFile.text + "***")
+    println("***" + playStoreWhatsNewFile.text + "***")
     throw new IllegalStateException("whatsnew file can not be longer than 500 characters! Currently " + playStoreWhatsNewFile.text.length())
 }
 
@@ -142,6 +151,7 @@ dependencies {
     implementation 'com.anysoftkeybaord.languages:base:4.0.121@aar'
     implementation 'com.anysoftkeybaord.languages.english:english:4.0.121@aar'
 
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     testImplementation project(path: ':base-test')
     testImplementation 'com.github.triplet.simpleprovider:simpleprovider:1.1.0'
 }

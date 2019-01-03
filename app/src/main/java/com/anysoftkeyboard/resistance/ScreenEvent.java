@@ -1,6 +1,10 @@
 package com.anysoftkeyboard.resistance;
 
 public class ScreenEvent {
+    public static final int SCREEN_ON = 1;
+    public static final int SCREEN_OFF = 0;
+    public static final int CALL_STARTED = 3;
+    public static final int CALL_ENDED = 4;
     private long timeStamp;
     private int screenOn;
 

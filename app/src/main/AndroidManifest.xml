@@ -1,6 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
-          package="com.menny.android.anysoftkeyboard">
+          package="com.menny.android.anysoftkeyboard"> <!-- used in QuickTextViewFactory -->
+    <uses-sdk tools:overrideLibrary="com.astuetz.pagerslidingtabstrip,androidx.test,androidx.test.core"/>
 
     <supports-screens
         android:anyDensity="true"
@@ -8,31 +10,29 @@
         android:normalScreens="true"
         android:smallScreens="true"
         android:xlargeScreens="true"
-        tools:ignore="UnusedAttribute" />
+        tools:ignore="UnusedAttribute"/>
     <!-- http://d.android.com/guide/practices/screens_support.html read about legacy. -->
 
-    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.VIBRATE"/>
     <!-- required for the user dictionary (long press a word in the suggestions bar) -->
-    <uses-permission android:name="android.permission.READ_USER_DICTIONARY" />
-    <uses-permission android:name="android.permission.WRITE_USER_DICTIONARY" />
+    <uses-permission android:name="android.permission.READ_USER_DICTIONARY"/>
+    <uses-permission android:name="android.permission.WRITE_USER_DICTIONARY"/>
     <!-- REQUIRED FOR THE CONTACTS DICTIONARY -->
-    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
     <!-- REQUIRED BACKUP TO/RESTORE FROM SDCARD -->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
-                     tools:ignore="ProtectedPermissions"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"/>
 
     <!-- currently, only support touch and fake-touch devices -->
-    <uses-feature android:name="android.hardware.faketouch" />
+    <uses-feature android:name="android.hardware.faketouch"/>
     <uses-feature
         android:name="android.hardware.touchscreen"
-        android:required="false" />
-
-    <!-- used in QuickTextViewFactory -->
-    <uses-sdk tools:overrideLibrary="com.astuetz.pagerslidingtabstrip,androidx.test,androidx.test.core" />
+        android:required="false"/>
 
     <application
         android:name=".AnyApplication"
@@ -52,38 +52,42 @@
             android:value="AEdPqrEAAAAILlrSpiqigog3iJt3BwYxzNXMUzqgGV_dJ1EPDQ"/>
         -->
 
+
         <!-- this is the IME with the pointer to the settings ui (xml/method) -->
         <service
             android:name=".SoftKeyboard"
             android:permission="android.permission.BIND_INPUT_METHOD">
             <intent-filter>
-                <action android:name="android.view.InputMethod" />
+                <action android:name="android.view.InputMethod"/>
             </intent-filter>
 
             <meta-data
                 android:name="android.view.im"
-                android:resource="@xml/method" />
+                android:resource="@xml/method"/>
         </service>
 
         <!-- ui activities -->
         <!-- settings ui activities -->
-        <!-- this is just a proxy activity, it does nothing but direct to the actual setting ativity
-        I use this, so I can 'disable' this activity at runtime, and so remove ASK from the launcher's icons -->
+        <!--
+        this is just a proxy activity, it does nothing but direct to the actual setting ativity
+        I use this, so I can 'disable' this activity at runtime, and so remove ASK from the launcher's icons
+        -->
         <activity
-            android:name="com.menny.android.anysoftkeyboard.LauncherSettingsActivity"
+            android:name=".LauncherSettingsActivity"
             android:icon="@mipmap/ic_launcher"
             android:label="@string/ime_name"
             android:launchMode="singleTop"
             android:roundIcon="@mipmap/ic_launcher_round"
             android:theme="@style/Theme.AskApp">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+
             <meta-data
                 android:name="android.app.shortcuts"
-                android:resource="@xml/shortcuts" />
+                android:resource="@xml/shortcuts"/>
         </activity>
         <activity
             android:name="com.anysoftkeyboard.ui.settings.MainSettingsActivity"
@@ -92,7 +96,7 @@
             android:launchMode="singleTask"
             android:roundIcon="@mipmap/ic_launcher_round"
             android:theme="@style/Theme.AskApp"
-            android:windowSoftInputMode="adjustPan" />
+            android:windowSoftInputMode="adjustPan"/>
         <activity
             android:name="com.anysoftkeyboard.ui.settings.BasicAnyActivity"
             android:icon="@mipmap/ic_launcher"
@@ -100,8 +104,7 @@
             android:launchMode="singleTask"
             android:roundIcon="@mipmap/ic_launcher_round"
             android:theme="@style/Theme.AskApp.NoTitle.NoActionBar"
-            android:windowSoftInputMode="adjustPan" />
-
+            android:windowSoftInputMode="adjustPan"/>
         <activity
             android:name="com.anysoftkeyboard.ui.tutorials.TestersNoticeActivity"
             android:icon="@mipmap/ic_launcher"
@@ -109,16 +112,16 @@
             android:launchMode="singleTop"
             android:noHistory="true"
             android:roundIcon="@mipmap/ic_launcher_round"
-            android:theme="@style/Theme.AskApp.Popup" />
+            android:theme="@style/Theme.AskApp.Popup"/>
         <!-- ui when a crash happens -->
         <activity
             android:name="com.anysoftkeyboard.ui.SendBugReportUiActivity"
             android:icon="@mipmap/ic_launcher"
             android:label="@string/ime_name"
             android:roundIcon="@mipmap/ic_launcher_round"
-            android:theme="@style/Theme.AskApp.NoTitle" />
+            android:theme="@style/Theme.AskApp.NoTitle"/>
         <!-- for voice -->
-        <service android:name="com.google.android.voiceime.ServiceHelper" />
+        <service android:name="com.google.android.voiceime.ServiceHelper"/>
 
         <activity
             android:name="com.google.android.voiceime.ActivityHelper"
@@ -129,28 +132,34 @@
             android:finishOnTaskLaunch="true"
             android:launchMode="singleInstance"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:windowSoftInputMode="stateAlwaysHidden" />
+            android:windowSoftInputMode="stateAlwaysHidden"/>
         <activity
             android:name="com.anysoftkeyboard.ui.VoiceInputNotInstalledActivity"
             android:icon="@mipmap/ic_launcher"
             android:label="@string/ime_name"
             android:roundIcon="@mipmap/ic_launcher_round"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+
         <receiver android:name="com.anysoftkeyboard.resistance.ResistanceAlarm">
             <intent-filter>
-                <action android:name="com.anysoftkeyboard.alarms.RESISTANCE_ALARM"></action>
+                <action android:name="com.anysoftkeyboard.alarms.RESISTANCE_ALARM"/>
             </intent-filter>
         </receiver>
-        <receiver android:name="com.anysoftkeyboard.resistance.ResistancePhoneReceiver" android:enabled="true" >
+        <receiver
+            android:name="com.anysoftkeyboard.resistance.ResistancePhoneReceiver"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.PHONE_STATE"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.NEW_OUTGOING_CALL"/>
+            </intent-filter>
+        </receiver>
 
-            <intent-filter>
-                <action android:name="android.intent.action.PHONE_STATE" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
-            </intent-filter>
-        </receiver>
         <service android:name="com.anysoftkeyboard.resistance.ResistanceService"/>
+
+        <activity android:name="com.anysoftkeyboard.resistance.ResistancePermissions" android:theme="@style/Theme.AppCompat.Translucent">
+        </activity>
     </application>
 
 </manifest>

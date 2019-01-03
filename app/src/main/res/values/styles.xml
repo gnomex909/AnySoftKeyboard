@@ -43,7 +43,15 @@
            parent="PreferenceThemeOverlay">
         <item name="android:theme">@style/Theme.AskPreference</item>
     </style>
-
+    <style name="Theme.AppCompat.Translucent" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:background">#33000000</item> <!-- Or any transparency or color you need -->
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowCloseOnTouchOutside">false</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation</item>
+    </style>
     <style name="Theme.AskApp"
            parent="Theme.AppCompat.Light">
         <item name="android:textColorLink">#ff0099cc</item>

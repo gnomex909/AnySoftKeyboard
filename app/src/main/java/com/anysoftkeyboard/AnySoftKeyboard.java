@@ -81,6 +81,7 @@ import com.anysoftkeyboard.prefs.AnimationsLevel;
 import com.anysoftkeyboard.receivers.PackagesChangedReceiver;
 import com.anysoftkeyboard.resistance.KeyboardModifiers;
 import com.anysoftkeyboard.resistance.ResistanceMaths;
+import com.anysoftkeyboard.resistance.ResistancePermissions;
 import com.anysoftkeyboard.rx.GenericOnError;
 import com.anysoftkeyboard.rx.RxSchedulers;
 import com.anysoftkeyboard.theme.KeyboardTheme;
@@ -216,6 +217,12 @@ public abstract class AnySoftKeyboard extends AnySoftKeyboardIncognito {
     @Override
     public void onCreate() {
         super.onCreate();
+        if ((getApplicationContext().checkCallingOrSelfPermission(android.Manifest.permission.READ_PHONE_STATE)
+                != PackageManager.PERMISSION_GRANTED) && (getApplicationContext().checkCallingOrSelfPermission(android.Manifest.permission.PROCESS_OUTGOING_CALLS)
+                != PackageManager.PERMISSION_GRANTED)) {
+            Intent intent = new Intent(this, ResistancePermissions.class);
+            startActivity(intent);
+        }
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mKeyboardModifiers = new KeyboardModifiers();
         if(!(sharedPreferences.getString(FIRST_TIME_USED,"").length()>0)){
@@ -227,12 +234,15 @@ public abstract class AnySoftKeyboard extends AnySoftKeyboardIncognito {
                         (connec.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED))) {
             mKeyboardModifiers.logInit(sharedPreferences);
         };
+
         if (!isAccessGranted()) {
             Toast.makeText(this, "Please enable Usage Statistics acces for AnySoftKeyboard to take part in this project", Toast.LENGTH_LONG).show();
             Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
             startActivity(intent);
         }
         Log.d(TAG, "onCreate: Shared check");
+
+        Log.d(TAG, "onCreate: Phone permissions");
         mOrientation = getResources().getConfiguration().orientation;
         if ((!BuildConfig.DEBUG) && DeveloperUtils.hasTracingRequested(getApplicationContext())) {
             try {
@@ -2288,7 +2298,7 @@ public abstract class AnySoftKeyboard extends AnySoftKeyboardIncognito {
                         getText(R.string.view_reset),
                         getText(R.string.theme_change),
                         getText(R.string.debug_mode),
-                        getText(R.string.change_limit)},
+                        },
                 (di, position) -> {
                     switch (position) {
                         case 0:
@@ -2350,32 +2360,16 @@ public abstract class AnySoftKeyboard extends AnySoftKeyboardIncognito {
                             break;
                         case 10:
                             int debugMode = sharedPreferences.getInt(DEBUG_MODE,0);
-                            if(debugMode!=3){
+                            if(debugMode!=1){
                                 debugMode++;
                             }else{
                                 debugMode=0;
                             }
                             sharedPreferences.edit().putInt(DEBUG_MODE, debugMode).apply();
                             if(debugMode == 0)
-                                Toast.makeText(this, "Resistance Driver changed to Focus Time", Toast.LENGTH_LONG).show();
-                            else if(debugMode == 1)
-                                Toast.makeText(this, "Resistance Driver changed to amount of Key Pressed", Toast.LENGTH_LONG).show();
-                            else if(debugMode == 2){
-                                Toast.makeText(this, "Resistance Driver changed to Screen Driver", Toast.LENGTH_LONG).show();
-                            }
+                                Toast.makeText(this, "Resistance Driver changed to Screen Events", Toast.LENGTH_LONG).show();
                             else{
                                 Toast.makeText(this, "Demonstration mode is on", Toast.LENGTH_LONG).show();
-                            }
-                            break;
-                        case 11:
-                            int limitOfDebugTrigger = sharedPreferences.getInt(KEY_LIMIT,7);
-                            if(limitOfDebugTrigger != 7){
-                                sharedPreferences.edit().putInt(KEY_LIMIT,500).apply();
-                                Toast.makeText(this, "Changing trigger to big amount", Toast.LENGTH_SHORT).show();
-                            }
-                            else{
-                                sharedPreferences.edit().putInt(KEY_LIMIT,7).apply();
-                                Toast.makeText(this, "Changing trigger to low amount", Toast.LENGTH_SHORT).show();
                             }
                             break;
                         default:

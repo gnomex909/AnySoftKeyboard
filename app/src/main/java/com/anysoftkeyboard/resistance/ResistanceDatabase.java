@@ -137,7 +137,7 @@ public class ResistanceDatabase extends SQLiteOpenHelper {
         SQLiteDatabase sqLiteDatabase = getWritableDatabase();
         sqLiteDatabase.execSQL("INSERT INTO " + EVENT_TABLE +" VALUES(" + screenEvent.getTimeStamp()+","+screenEvent.isScreenOn()+");");
     }
-    public List<ScreenEvent> getScreenEvents(long startTime, long endTime){
+    public ArrayList<ScreenEvent> getScreenEvents(long startTime, long endTime){
         SQLiteDatabase sqLiteDatabase = getReadableDatabase();
         ArrayList<ScreenEvent> screenEvents = new ArrayList<>();
         Cursor query = sqLiteDatabase.query(EVENT_TABLE, null, "timestamp > ? AND timestamp < ?", new String[] {""+startTime,""+endTime}, null, null, null);

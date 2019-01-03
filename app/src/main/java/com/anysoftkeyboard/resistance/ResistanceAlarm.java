@@ -64,6 +64,7 @@ public class ResistanceAlarm extends BroadcastReceiver {
                 sharedPreferences.edit().putLong(LAST_CALCULATION, currTime).apply();
                 ResistanceData resistanceData = new ResistanceData();
                 ArrayList<AppUsageInfo> appUsageInfos = resistanceData.getUsageStatistics(context, startTime, currTime);
+                ArrayList<ScreenEvent> screenEvents = resistanceData.getScreenEvents(context,startTime, currTime);
                 for (AppUsageInfo app : appUsageInfos) {
                     app.setAppName(resistanceData.getAppNameFromPackage(app.getPackageName(), context));
                 }
@@ -73,8 +74,14 @@ public class ResistanceAlarm extends BroadcastReceiver {
                 Log.d(TAG, "onReceive: Permission granted");
                 mContext = context;
                 ResistanceMaths resistanceMaths = new ResistanceMaths();
-                double decision = resistanceMaths.calculateFocusTime(context, appUsageInfos, startTime, currTime);
-                if (debugMode == 0) {
+                double screenDecision = resistanceMaths.screenEventMaths(context,screenEvents, appUsageInfos, startTime, currTime);
+                if(debugMode == 0) {
+                    int resistanceDriver = new ResistanceChanger().screenLevelChanger(screenDecision);
+                    sharedPreferences.edit().putInt(RESISTANCE_DRIVER, resistanceDriver).apply();
+                    sharedPreferences.edit().putBoolean(LEVEL_CHANGED, true).apply();
+                }
+                if (debugMode == 2) {
+                    double decision = resistanceMaths.calculateFocusTime(context, appUsageInfos, startTime, currTime);
                     Log.d(TAG, "onReceive: Actually changing anything");
                     int resistanceDriver = new ResistanceChanger().levelChanger(decision, sharedPreferences.getInt(RESISTANCE_DRIVER, 0));
                     sharedPreferences.edit().putInt(RESISTANCE_DRIVER, resistanceDriver).apply();

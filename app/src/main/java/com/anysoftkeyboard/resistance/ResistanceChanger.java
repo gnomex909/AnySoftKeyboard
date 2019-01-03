@@ -30,4 +30,19 @@ public class ResistanceChanger {
 
         return  resistanceDriver;
     }
+    public int screenLevelChanger(double decision){
+        int resistanceLevel = 0;
+        if(decision < 0.2){
+            resistanceLevel = 0;
+        }else if(decision < 0.4 && decision >= 0.2){
+            resistanceLevel = 1;
+        }else if(decision < 0.6 && decision >= 0.4){
+            resistanceLevel = 2;
+        }else if(decision < 0.8 && decision >= 0.6){
+            resistanceLevel = 3;
+        }else if(decision >= 0.8){
+            resistanceLevel = 4;
+        }
+        return resistanceLevel;
+    };
 }
