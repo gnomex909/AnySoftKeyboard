@@ -85,7 +85,7 @@ public class ResistanceLogger {
         calc.put("activeModel", activeModel);
         calc.put("decision", decision);
         calc.put("lastDecision", lastDecision);
-        calc.put("screenOnTime", screenTime/1000);
+        calc.put("screenOnTime", screenTime);
         calc.put("appUsages", appTime);
         calc.put("screenEvents", screenEventsMap);
         ConnectivityManager connec = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);

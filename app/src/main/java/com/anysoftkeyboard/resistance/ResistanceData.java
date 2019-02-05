@@ -68,6 +68,10 @@ public class ResistanceData {
         ArrayList<ScreenEvent> screenEvents = ResistanceDatabase.getInstance(context).getScreenEvents(startTime,endTime);
         return screenEvents;
     }
+    public ArrayList<ScreenEvent> getAllScreenEvents(Context context){
+        ArrayList<ScreenEvent> screenEvents = ResistanceDatabase.getInstance(context).getAllScreenEvents();
+        return screenEvents;
+    }
     public String getAppNameFromPackage(String packageName, Context context) {
         Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);

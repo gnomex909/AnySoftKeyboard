@@ -31,7 +31,7 @@ public class ResistanceMaths {
     private static final String PREVIOUS_DECISION = "PreviousResistanceDecision";
     private int amountOfModels = 2;
     private long treshold = 1000*10;
-    private double alpha = 0.8;
+    private double alpha = 0.5;
 
     public int getAmountOfModels() {
         return amountOfModels;
@@ -127,6 +127,9 @@ public class ResistanceMaths {
     }
 
     public double screenEventMaths(Context context, ArrayList<ScreenEvent> screenEvents, ArrayList<AppUsageInfo> appUsageInfos, long start, long end){
+        for(ScreenEvent e : screenEvents){
+            Log.d(TAG, "screenEventMaths: " + e.toString());
+        }
         boolean screenOpened = true;
         long starTime = start;
         long endTime = end;
@@ -136,24 +139,28 @@ public class ResistanceMaths {
 
             switch (e.isScreenOn()){
                 case SCREEN_ON:
-                    starTime = System.currentTimeMillis();
+                    starTime = e.getTimeStamp();
+                    Log.d(TAG, "screenEventMaths: Screen on");
                     screenOpened = true;
                     break;
                 case SCREEN_OFF:
                     if(screenOpened){
-                        endTime = System.currentTimeMillis();
-                        long onTime = endTime = starTime;
+                        endTime = e.getTimeStamp();
+                        long onTime = endTime - starTime;
                         if(onTime <= treshold){
                             onTime = treshold;
                         }
+                        Log.d(TAG, "screenEventMaths: On time equals " + onTime);
                         screenOnTimer += onTime;
                         screenOpened = false;
                     }
                     break;
                 case CALL_STARTED:
+                    Log.d(TAG, "screenEventMaths: Call started");
                     screenOpened = false;
                     break;
                 case CALL_ENDED:
+                    Log.d(TAG, "screenEventMaths: Call ended");
                     screenOpened = false;
                     break;
                 default:
@@ -161,9 +168,12 @@ public class ResistanceMaths {
             }
         }
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        Log.d(TAG, "screenEventMaths: Final time: " + screenOnTimer);
         double current = (screenOnTimer/(end-start));
         if(current>1){
             current = 1;
+        }else if(current<0){
+            current = 0;
         }
         double lastDecision = Double.parseDouble(sharedPreferences.getString(PREVIOUS_DECISION, 0+""));
         double decision = (lastDecision*alpha) + ((1- alpha)* current);

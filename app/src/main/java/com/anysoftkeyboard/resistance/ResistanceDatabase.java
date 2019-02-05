@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Gnomex on 01.03.2018.
@@ -153,7 +152,7 @@ public class ResistanceDatabase extends SQLiteOpenHelper {
         Log.d(TAG, "getScreenEvents: " + screenEvents);
         return screenEvents;
     }
-    public List<ScreenEvent> getAllScreenEvents(){
+    public ArrayList<ScreenEvent> getAllScreenEvents(){
         SQLiteDatabase sqLiteDatabase = getReadableDatabase();
         ArrayList<ScreenEvent> screenEvents = new ArrayList<>();
         Cursor query = sqLiteDatabase.query(EVENT_TABLE, null, null,null, null, null, null);

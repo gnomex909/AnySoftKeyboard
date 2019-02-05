@@ -26,7 +26,7 @@ def generators = [
         new net.evendanan.versiongenerator.generators.StaticVersionGenerator()
 ]
 
-def versionData = versionGenerator.generateVersion(1, 10, 0, generators)
+def versionData = versionGenerator.generateVersion(1, 11, 0, generators)
 
 apply from: "${rootDir}/gradle/android_general.gradle"
 

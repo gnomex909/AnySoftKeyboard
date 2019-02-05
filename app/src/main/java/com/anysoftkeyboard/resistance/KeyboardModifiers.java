@@ -83,6 +83,12 @@ public class KeyboardModifiers {
         Intent intent = new Intent(context, ResistanceService.class);
         context.startService(intent);
         Log.d(TAG, "keyboardStartup: starting");
+//        ResistanceData resistanceData = new ResistanceData();
+//        ResistanceMaths resistanceMaths = new ResistanceMaths();
+//        ArrayList<AppUsageInfo> appUsageInfos = new ArrayList<>();
+////        ArrayList<ScreenEvent> screenEvents = resistanceData.getScreenEvents(context,1548773591, 1548775403);
+//        ArrayList<ScreenEvent> screenEvents = resistanceData.getAllScreenEvents(context);
+//        double screenDecision = resistanceMaths.screenEventMaths(context,screenEvents, appUsageInfos, 1548773673737l, 1548773673732l);
         debugTrigger = 0;
         keyPresses = 0;
         inactivityTime = 0;
